@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>casapro.log</file>
+
+        <encoder>
+            <pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- daily rollover. Make sure the path matches the one in the file element or else
+             the rollover logs are placed in the working directory. -->
+            <fileNamePattern>casapro_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>5MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <!-- keep 30 days' worth of history -->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>%d %-4relative [%thread] %-5level %logger{35} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="org.apache.activemq.broker.BrokerService" level="INFO"/>
+    <logger name="org.apache.activemq.store" level="INFO"/>
+    <logger name="org.apache.http" level="INFO"/>
+    <logger name="org.springframework" level="INFO"/>
+
+    <logger name="org.jboss.logging" level="INFO"/>
+
+    <logger name="org.eclipse.jetty" level="INFO"/>
+    <logger name="org.eclipse.jetty.server" level="INFO"/>
+
+    <!-- for server request logs -->
+    <logger name="org.eclipse.jetty.server.RequestLog" level="INFO"/>
+
+    <logger name="com.mchange" level="INFO"/>
+
+    <logger name="org.hibernate" level="INFO"/>
+    <logger name="org.hibernate.SQL" level="INFO"/>
+    <logger name="org.hibernate.c3p0" level="INFO"/>
+    <logger name="org.hibernate.engine.jdbc.internal" level="INFO"/>
+    <logger name="org.hibernate.hql.internal.ast" level="INFO"/>
+    <logger name="org.hibernate.type" level="INFO"/>
+    <logger name="org.hibernate.tool" level="INFO"/>
+    <logger name="org.hibernate.pretty" level="INFO"/>
+    <logger name="org.hibernate.cache" leve="INFO"/>
+    <logger name="org.hibernate.transaction" level="INFO"/>
+    <logger name="org.hibernate.jdbc" level="INFO"/>
+    <logger name="org.hibernate.hql" level="INFO"/>
+    <logger name="org.hibernate.secure" level="INFO"/>
+
+    <logger name="java.sql.DatabaseMetaData" level="INFO"/> <!-- this is more hibernate -->
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="FILE" />
+    </root>
+
+</configuration>

@@ -1,0 +1,64 @@
+{
+  "name": "bobbit-ui",
+  "description": "WEB UI for bobbit app",
+  "author": "RR Team",
+  "scripts": {
+    "loop": "./node_modules/.bin/gulp test-loop"
+  },
+  "dependencies": {
+    "randomcolor": "0.1.1",
+    "diff": "^1.2.0",
+    "jquery": "2.1.1",
+    "lodash": "2.4.1",
+    "moment": "2.8.4",
+    "object-assign": "2.0.0",
+    "react": "0.13.1",
+    "react-bootstrap": "0.13.1",
+    "react-select":"0.4.9",
+    "react-date-picker":"2.0.12",
+    "joi-react":"1.0.1",
+    "react-validation-mixin":"4.0.4",
+    "bowser": "~0.7.2",
+    "reactable" : "0.10.1"
+  },
+  "devDependencies": {
+    "browserify": "^6.3.3",
+    "browserify-shim": "^3.8.0",
+    "gulp": "3.8.10",
+    "gulp-browserify": "0.5.0",
+    "gulp-compass": "^2.0.3",
+    "gulp-debug": "1.0.1",
+    "gulp-duration": "0.0.0",
+    "gulp-gzip": "0.0.8",
+    "gulp-livereload": "^2.1.1",
+    "gulp-mocha": "2.0.0",
+    "gulp-notify": "2.0.1",
+    "gulp-react": "^2.0.0",
+    "gulp-rename": "^1.2.0",
+    "gulp-replace": "^0.5.0",
+    "gulp-styl": "1.0.2",
+    "gulp-util": "^3.0.1",
+    "jsdom": "^1.3.1",
+    "mocha": "2.0.1",
+    "node-jsx": "^0.12.4",
+    "pretty-hrtime": "0.2.2",
+    "reactify": "1.1.0",
+    "require-dir": "^0.1.0",
+    "tiny-lr": "0.1.4",
+    "vinyl-source-stream": "1.0.0",
+    "watchify": "1.0.2",
+    "npm-check-updates": "~1.2.0",
+    "mocha-jsdom": "~0.2.0"
+  },
+  "browserify": {
+    "transform": [
+      "browserify-shim"
+    ]
+  },
+  "browser": {
+    "tinymce": "./node_modules/tinymce/tinymce.min.js"
+  },
+  "browserify-shim": {
+    "tinymce": "tinymce"
+  }
+}

@@ -1,0 +1,438 @@
+}import com.moowork.gradle.node.util.PlatformHelper
+
+apply plugin: 'eclipse'
+apply plugin: "java"
+apply plugin: "os-package"
+apply plugin: "application"
+apply plugin: 'node'
+apply plugin: 'idea'
+
+apply plugin: 'spring-boot'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+group = "co.uk.bobbit"
+version = runningOnJenkins() ? "0.1" : "developer"
+
+project.ext {
+
+    node_version = "0.10.33"
+
+    buildNumber = runningOnJenkins() ? System.getenv("BUILD_NUMBER") : "1"
+
+    // dependency_version_jetty = "9.2.2.v20140723"
+    dependency_version_jmock = "2.6.0"
+    dependency_version_hibernate = "5.1.1.Final"
+    dependency_version_spring = "4.1.6.RELEASE"
+    dependency_version_aspectj = "1.6.10"
+    dependency_version_mockserver = "3.0"
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.3'
+}
+
+node {
+    version = project.node_version
+    npmVersion = "2.7.5"
+    download = true
+}
+
+task checkRuby(type:Exec) {
+    commandLine "ruby --version".split()
+}
+
+task checkGem(type:Exec, dependsOn:checkRuby) {
+    commandLine "gem --version".split()
+}
+
+task installGems(dependsOn:checkGem) << {
+    def config = new File(".gemrc")
+    def useGems = [
+            'chunky_png': '1.2.9',
+            'fssm': '0.2.10',
+            'sass': '3.2.12',
+            'compass': '0.12.2'
+    ]
+
+    // Install gems
+    useGems.each { gem, version ->
+        logger.info "Looking for $gem ($version)"
+        def installed = new ByteArrayOutputStream().withStream { out ->
+            exec {
+                executable = 'gem'
+                args = ['list', gem, '--installed', '--version', version, '--config-file', config.absolutePath]
+                standardOutput = out
+                ignoreExitValue = true
+            }
+            return out.toString().toBoolean()
+        }
+        if (installed) {
+            logger.info "> Already installed"
+        } else {
+            logger.info "> Missing"
+            logger.info "Installing $gem ($version)"
+            new ByteArrayOutputStream().withStream {
+                out -> exec {
+                    executable = 'gem'
+                    args = ['install', gem, '--version', version, '--config-file', config.absolutePath, "--user-install"]
+                    standardOutput = out
+                }
+            }
+        }
+    }
+}
+
+def runningOnJenkins() {
+    return System.getenv("BUILD_NUMBER") != null;
+}
+
+buildscript {
+    repositories {
+        jcenter()
+
+    }
+    dependencies {
+        classpath group: 'org.springframework.boot', name:'spring-boot-gradle-plugin', version:'1.2.4.RELEASE'
+        classpath group: 'com.netflix.nebula', name: 'gradle-ospackage-plugin', version: "2.0.2"
+        classpath group: 'com.moowork.gradle', name: 'gradle-node-plugin', version:'0.7'
+    }
+}
+
+
+repositories {
+
+    mavenCentral()
+}
+
+sourceSets {
+    main {
+        output.resourcesDir = "build/classes/main"
+    }
+    integTest {
+        java.srcDir file('src/integrationtests/java')
+        resources.srcDir file('src/integrationtests/resources')
+    }
+}
+
+
+
+dependencies {
+
+    compile group: 'commons-codec', name: "commons-codec", version: "1.10"
+
+    compile group: 'org.apache.shiro', name: 'shiro-core', version: '1.2.3'
+    compile group: 'org.apache.shiro', name: 'shiro-web', version: '1.2.3'
+
+    compile group: 'com.google.guava', name: 'guava', version: '16.0.1'
+    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.0.13'
+
+//    compile group: 'com.codahale.metrics', name: 'metrics-core', version: '3.0.2'
+//    compile group: 'com.codahale.metrics', name: 'metrics-jetty9', version: '3.0.2'
+//    compile group: 'com.codahale.metrics', name: 'metrics-servlets', version: '3.0.2'
+
+    compile group: 'com.hazelcast', name: 'hazelcast', version: '3.4.1'
+    compile group: 'com.hazelcast', name: 'hazelcast-client', version: '3.4.1'
+
+    //compile group: 'org.eclipse.jetty', name: 'jetty-server', version: project.dependency_version_jetty
+    //compile group: 'org.eclipse.jetty', name: 'jetty-servlet', version: project.dependency_version_jetty
+    //compile group: 'org.eclipse.jetty', name: 'jetty-continuation', version: project.dependency_version_jetty
+
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.3.2'
+
+//    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: "4.3.1"
+
+//    compile group: 'org.apache.httpcomponents', name: 'fluent-hc', version: "4.3.1"
+
+//    compile group: 'org.apache.activemq', name: 'activemq-core', version: '5.7.0'
+    
+  //  compile group: 'org.aspectj:aspectjtools:1.8.6'
+    
+    compile group: 'commons-fileupload', name: 'commons-fileupload', version: '1.3.1'
+	
+	
+	compile 'org.aspectj:aspectjtools:1.6.2'
+	
+	    
+
+    compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.35'
+    compile group: 'org.hibernate', name: 'hibernate-core', version: '4.3.8.Final'
+
+    compile group: 'org.hibernate', name: 'hibernate-entitymanager', version: '4.3.6.Final'
+    compile group: 'org.hibernate', name: 'hibernate-search', version: project.dependency_version_hibernate
+    compile group: 'org.hibernate', name: 'hibernate-validator', version: project.dependency_version_hibernate
+    compile group: 'org.jadira.usertype', name: 'usertype.core', version: '3.2.0.GA'
+    compile group: 'org.jadira.usertype', name: 'usertype.extended', version: '3.2.0.GA'
+
+    compile group: 'org.apache.tomcat', name:'tomcat-jdbc', version:'8.0.17'
+
+    compile group: 'com.googlecode.flyway', name: 'flyway-core', version: '2.3.1'
+
+    compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.4.3'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.5.1'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.5.1'
+    compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.15'
+
+    compile group: 'org.springframework.batch', name: 'spring-batch-core',version: '2.2.7.RELEASE'
+
+
+    compile group: 'org.springframework', name: 'spring-context',version: project.dependency_version_spring
+    compile group: 'org.springframework', name: 'spring-orm',version: project.dependency_version_spring
+    compile group: 'org.springframework', name: 'spring-tx',version: project.dependency_version_spring
+//    compile group: 'org.springframework', name: 'spring-webmvc',version: project.dependency_version_spring
+    
+    compile 'org.springframework.security:spring-security-web:4.0.1.RELEASE'
+  	compile 'org.springframework.security:spring-security-config:4.0.1.RELEASE'
+	
+	compile 'org.springframework.boot:spring-boot-starter-security:1.2.4.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter-thymeleaf:1.2.4.RELEASE'
+//    compile 'org.springframework.boot:spring-boot-starter-web:1.2.4.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter:1.2.4.RELEASE'
+
+    compile group: 'org.aspectj', name: 'aspectjrt',version: project.dependency_version_aspectj
+
+    compile 'com.itextpdf:itextpdf:5.5.4'
+    compile 'com.itextpdf:itext-asian:5.2.0'
+    compile 'javax.mail:javax.mail-api:1.5.2'
+    compile 'com.sun.mail:javax.mail:1.5.2'
+    compile 'com.lowagie:itext:2.0.8'
+    compile 'org.eclipse.jetty:jetty-webapp:9.0.4.v20130625'
+    
+
+    testCompile group: 'org.hsqldb', name: 'hsqldb', version: '2.3.2'
+
+    testCompile group: 'com.h2database', name: 'h2', version: '1.3.168'
+    testCompile group: 'junit',  name: 'junit', version: '4.11'
+    testCompile group: 'org.jmock', name: 'jmock-junit4', version: project.dependency_version_jmock
+    testCompile group: 'org.jmock', name: 'jmock', version: project.dependency_version_jmock
+    testCompile group: 'com.jayway.jsonpath', name: 'json-path-assert', version: '0.9.1'
+
+    testCompile group: 'org.seleniumhq.selenium', name: "selenium-firefox-driver", version: "2.45.0"
+    testCompile group: 'org.seleniumhq.selenium', name: "selenium-support", version: "2.45.0"
+    testCompile group: 'org.seleniumhq.selenium', name: "selenium-java", version: "2.45.0"
+    testCompile group: 'com.jayway.jsonpath', name: "json-path", version: "2.0.0"
+    testCompile group: 'org.springframework', name: "spring-test", version: project.dependency_version_spring
+    
+    integTestCompile sourceSets.main.output
+    integTestCompile configurations.testCompile
+    integTestCompile sourceSets.test.output
+    integTestRuntime configurations.testRuntime
+
+
+}
+
+task integTest(type: Test) {
+    testClassesDir = sourceSets.integTest.output.classesDir
+    classpath = sourceSets.integTest.runtimeClasspath
+}
+task removeNodeModules(type: Delete) {
+    delete 'node_modules'
+}
+
+task prepareNpmStuff(dependsOn: ["removeNodeModules"]) {
+}
+
+npmInstall {
+    dependsOn prepareNpmStuff
+
+    def bob = [:]
+    bob << System.getenv();
+
+    def platform  = PlatformHelper.getOsName()
+
+    bob["PATH"] = bob["HOME"] + "/.gradle/nodejs/node-v" + project.node_version + "-" + platform + "-x64/bin:" + System.getenv('PATH')
+    environment bob
+}
+
+task compileWebsite(type: NodeTask) {
+    def gemLocalInstallationBin191 = new File(System.getProperty("user.home") + "/.gem/ruby/1.9.1/bin")
+    def gemLocalInstallationBin187 = new File(System.getProperty("user.home") + "/.gem/ruby/1.8/bin")
+
+    def bob = [:]
+    bob << System.getenv();
+    bob["PATH"] = gemLocalInstallationBin191.absolutePath + ":" + gemLocalInstallationBin187.absolutePath + ":" + System.getenv('PATH')
+
+    environment bob
+    dependsOn npmInstall, installGems
+    script = file('node_modules/gulp/bin/gulp.js')
+    args = [ "website" ]
+}
+
+task testWebsite(type: NodeTask) {
+    dependsOn npmInstall
+    script = file('node_modules/gulp/bin/gulp.js')
+    args = [ "test" ]
+}
+
+test {
+    dependsOn compileWebsite
+    dependsOn testWebsite
+}
+
+ospackage {
+    packageName = "${project.group}-casapro"
+    packageDescription = " "
+    version = project.version
+    release = project.buildNumber
+    arch = NOARCH
+    os = LINUX
+    packageGroup = "Java Apps"
+    summary = "Casapro"
+    vendor = "RR Group"
+    distribution = "Not relevant"
+    url = ""
+    license = "Copyright RR Group 2014 All Rights Reserved"
+
+    user "manager"
+    permissionGroup "manager"
+
+    into ('/usr/local/cms/in-house-translation')
+
+    installUtils file("src/main/unix/rpm/prefix.sh")
+    preInstall file("src/main/unix/rpm/preinstall.sh")
+    postInstall file("src/main/unix/rpm/postinstall.sh")
+    preUninstall file("src/main/unix/rpm/preuninstall.sh")
+    postUninstall file("src/main/unix/rpm/postuninstall.sh")
+
+    from ( "build/webapp" ) {
+        into("build/webapp")
+    }
+
+    from ( "build/install/" + project.name + "/bin") {
+        fileMode = 0555
+        into("bin")
+    }
+
+    from ( "build/install/" + project.name + "/lib") {
+        fileMode = 0444
+        into("lib")
+    }
+
+    from ( "src/main/unix/init.d") {
+        fileMode = 0555
+        into("init.d")
+        user "root"
+        permissionGroup "root"
+    }
+
+    from ( "src/main/unix/bin") {
+        fileMode = 0555
+        into("/usr/bin")
+        user "root"
+        permissionGroup "root"
+    }
+
+    from ( "src/main/unix/etc") {
+        fileMode = 0555
+        into("/etc")
+        user "root"
+        permissionGroup "root"
+    }
+
+    from ( "src/main/unix/pip-packages") {
+        fileMode = 0555
+        into("/var/cache/pip-packages")
+        user "root"
+        permissionGroup "root"
+    }
+}
+
+buildRpm {
+    dependsOn installApp
+    dependsOn compileWebsite
+    link('/etc/init.d/supervisord', '/usr/local/cms/in-house-translation/init.d/supervisord.sh')
+}
+
+task "package" (dependsOn: buildRpm) {
+}
+
+
+task createAllStartScripts() << {
+    // just a placeholder
+}
+
+
+
+
+jar {
+
+    doFirst {
+        from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } } 
+    }
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA' 
+    
+    manifest {
+        attributes(
+                "Implementation-Title" : "${project.group}-manager",
+                "Implementation-Version" : project.version + " " + project.buildNumber,
+                "Main-Class" : "com.casarotto.casapro.CasarottoApplication"
+        )
+    }
+    
+}
+
+task generateGitProperties {
+    
+    doLast {
+        try {
+            def branch = 'git rev-parse --abbrev-ref HEAD'.execute().text.trim()
+            def revision = 'git rev-list --max-count 1 --timestamp HEAD'.execute().text.trim()
+            def commitHash = revision.split(' ').last()
+            def commitMessage = 'git log -10 --pretty=%B'.execute().text.trim()
+            def timestamp = revision ? new java.util.Date(java.util.concurrent.TimeUnit.SECONDS.toMillis(revision.split(' ').first() as long)).format("yyyy-MM-dd'T'HH:mm:ssZ") : null
+
+            File resourcesDir = new File(project.getBuildDir(), 'classes/main')
+            File propertiesFile = new File(resourcesDir, 'git.properties')
+
+            if(timestamp) {
+                // The project may not have any resources, so create the directories and file
+                if(!propertiesFile.exists()) {
+                    resourcesDir.mkdirs()
+                    propertiesFile.createNewFile()
+                }
+                propertiesFile.text = """git.branch=${branch}
+        git.commit.id=${commitHash}
+        git.commit.time=${timestamp}
+        git.commit.message=\"${commitMessage}\"
+                """
+            } else {
+               project.logger.error('Unable to generate Git properties file:  revision could not be retrieved from Git.')
+            }
+        } catch (e) {
+            project.logger.error('Unable to generate Git properties file.', e)
+        }
+    }
+}
+
+
+
+//create a single Jar with all dependencies
+task fatJar(type: Jar) {
+    dependsOn generateGitProperties
+    zip64 true
+    
+    doFirst {
+        from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } } 
+    }
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA' 
+    
+    manifest {
+        attributes 'Implementation-Title': '${project.group}-manager',
+                'Implementation-Version': project.version + " " + project.buildNumber,
+                'Main-Class': 'com.casarotto.casapro.CasarottoApplication'
+    }
+    
+    baseName = project.name + '-all' 
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar	
+}
+
+task gulp(type: NodeTask) {
+    script = file('node_modules/gulp/bin/gulp.js')
+    if(project.hasProperty('target')) {
+        args = [project.target]
+    }
+}
+
+
+
+

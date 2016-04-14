@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<script>
+
+    var eventSource = new EventSource("http://localhost:8080/api/events");
+    eventSource.onmessage = function(event)
+    {
+        window.console.info("Server-Sent Event: " + event.data);
+    };
+
+</script>
+
+<body>
+
+</body>
+</html>

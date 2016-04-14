@@ -1,0 +1,2 @@
+// needed because jenkins checks out into a different directory
+rootProject.name="bobbit-ui"
