@@ -1,4 +1,4 @@
-}import com.moowork.gradle.node.util.PlatformHelper
+import com.moowork.gradle.node.util.PlatformHelper
 
 apply plugin: 'eclipse'
 apply plugin: "java"
@@ -180,10 +180,10 @@ dependencies {
     compile group: 'org.springframework', name: 'spring-tx',version: project.dependency_version_spring
 //    compile group: 'org.springframework', name: 'spring-webmvc',version: project.dependency_version_spring
     
-    compile 'org.springframework.security:spring-security-web:4.0.1.RELEASE'
-  	compile 'org.springframework.security:spring-security-config:4.0.1.RELEASE'
+//    compile 'org.springframework.security:spring-security-web:4.0.1.RELEASE'
+//  	compile 'org.springframework.security:spring-security-config:4.0.1.RELEASE'
 	
-	compile 'org.springframework.boot:spring-boot-starter-security:1.2.4.RELEASE'
+//	compile 'org.springframework.boot:spring-boot-starter-security:1.2.4.RELEASE'
     compile 'org.springframework.boot:spring-boot-starter-thymeleaf:1.2.4.RELEASE'
 //    compile 'org.springframework.boot:spring-boot-starter-web:1.2.4.RELEASE'
     compile 'org.springframework.boot:spring-boot-starter:1.2.4.RELEASE'

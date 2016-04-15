@@ -35,7 +35,6 @@ describe("project", function () {
         assert.equal('London', t.location());
         assert.equal('ACTIVE', t.tracking());
         assert.equal('action', t.action());
-        assert.equal('Shoot', t.projectPeriods()[0].reason());
 
         assert.equal(t.creationTimestampInFormat("ddd DD MMM YYYY h:mm:ss"), "Thu 04 Dec 2014 10:59:37");
 
@@ -64,15 +63,15 @@ describe("project", function () {
 
     });
 
-        it("can accept Period", function () {
-           var p = new ProjectForm();
-           p.addPeriod(new ProjectPeriod("2323","23-02-2015","22-02-2015","shoot","3"));
-           assert.equal('2323', p.projectPeriods()[0].id());
-           assert.equal('22-02-2015', p.projectPeriods()[0].endDate());
-           assert.equal('23-02-2015', p.projectPeriods()[0].date());
-           assert.equal('shoot', p.projectPeriods()[0].reason());
-
-        });
+//        it("can accept Period", function () {
+//           var p = new ProjectForm();
+//           p.addPeriod(new ProjectPeriod("2323","23-02-2015","22-02-2015","shoot","3"));
+//           assert.equal('2323', p.projectPeriods()[0].id());
+//           assert.equal('22-02-2015', p.projectPeriods()[0].endDate());
+//           assert.equal('23-02-2015', p.projectPeriods()[0].date());
+//           assert.equal('shoot', p.projectPeriods()[0].reason());
+//
+//        });
 
            it("can validate itself ", function () {
                 var p = project.fromWireFormat({"id":"uiuiuiuiuui","title":"", "creationTimestamp":1417690777});

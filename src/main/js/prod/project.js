@@ -1,9 +1,6 @@
 var _ = require("lodash");
 var moment = require("moment");
 
-var ProjectPeriod = require("./projectperiod.js").ProjectPeriod;
-var ProjectPeriodList = require("./projectperiod.js").ProjectPeriodList;
-var ProjectCompany = require("./company.js").Company;
 
 var Project = function(id,title,creationTimestamp){
     this._title = title;
@@ -18,10 +15,9 @@ var Project = function(id,title){
 };
 
 var Project = function(){
-   this._projectPeriods = []
 }
 
-var Project = function(id,title,creationTimestamp,type,budget,director,projectPeriods,action,tracking,location,followUp){
+var Project = function(id,title,creationTimestamp,type,budget,director,action,tracking,location,followUp){
     this._title = title;
     this._creationTimestamp = creationTimestamp;
     this._followUp = followUp;
@@ -29,11 +25,9 @@ var Project = function(id,title,creationTimestamp,type,budget,director,projectPe
     this._type= _.isEmpty(type) ? 'NEW_PROJECT' : type;
     this._budget =  _.isEmpty(budget) ? 'Not specified' : budget;
     this._director = _.isEmpty(director) ? 'Not specified' : director;
-    this._projectPeriods =  projectPeriods;
     this._action= _.isEmpty(action) ? 'Not specified' : action;
     this._tracking=  tracking;
     this._location= _.isEmpty(location) ? 'Not specified' : location;
-    this._prodCompany = new ProjectCompany();
 
 
 };
@@ -58,9 +52,6 @@ Project.prototype.prodCompany = function(){
     return this._prodCompany;
 };
 
-Project.prototype._projectPeriods = function(){
-    return this._projectPeriods;
-};
 Project.prototype.action = function(){
     return this._action;
 };
@@ -82,31 +73,7 @@ Project.prototype.budget = function(){
 };
 
 
-Project.prototype.shootDate = function(){
 
-    var shootDate = _.filter(this._projectPeriods, function(period) {
-
-       return period.reason() =='shoot';
-    });
-
-    if(shootDate.length>0)
-       return shootDate[0]
-       else
-    return new ProjectPeriod();
-};
-
-Project.prototype.prepDate = function(){
-
-    var shootDate = _.filter(this._projectPeriods, function(period) {
-
-       return period.reason() =='preProductionDate';
-    });
-
-    if(shootDate.length>0)
-       return shootDate[0]
-       else
-    return new ProjectPeriod();
-};
 
 Project.prototype.validate = function(active) {
    var result = []
@@ -128,28 +95,6 @@ Project.prototype.addCoProdCompany = function(company) {
 }
 
 
-Project.prototype.addPeriod = function (period) {
-
-   var filtered = _.filter(this._projectPeriods,function(p){
-     return p.id()!=period.id();
-   })
-
-
-
-   if(this._projectPeriods ==null)
-        this._projectPeriods = []
-   else
-        this._projectPeriods = filtered
-    return this._projectPeriods.push(period);
-};
-
-Project.prototype.emptyPeriods = function () {
-        this._projectPeriods = []
-};
-
-Project.prototype.projectPeriods = function () {
-    return this._projectPeriods;
-};
 
 
 Project.prototype.creationTimestamp = function () {
@@ -165,7 +110,7 @@ Project.prototype.creationTimestampInFormat = function (format) {
 
 
 Project.fromWireFormat = function(m) {
-    return new Project(m.id,m.title, m.creationTimestamp,m.projectType,m.budget,m.director,ProjectPeriodList.fromWireFormat(m.projectPeriods).periods(),m.action,m.tracking,m.location,m.followUp);
+    return new Project(m.id,m.title, m.creationTimestamp,m.projectType,m.budget,m.director,m.action,m.tracking,m.location,m.followUp);
 };
 
 Project.fromWireFormatForSuggest = function(m) {
@@ -231,8 +176,7 @@ Project.prototype.toWireFormat = function () {
        director:this._director,
        tracking:this._tracking,
        location:this._location,
-       followUp:this._followUp,
-       projectPeriods:[],
+       followUp:this._followUp
     };
 };
 

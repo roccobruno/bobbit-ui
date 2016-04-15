@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.casarotto.casapro.search.LuceneSearcher;
-import com.casarotto.casapro.utils.GitStatus;
 
 /**
  * Handles requests for the application home page.
@@ -35,10 +33,7 @@ public class HomeController {
     @Value("${git.commit.message}")
 	private String commitMessage;
 	
-	@Autowired
-	@Qualifier("luceneSearcher")
-	private LuceneSearcher luceneSearcher;
-	
+
 	
 	/**
 	 * Simply selects the home view to render by returning its name.
@@ -48,16 +43,15 @@ public class HomeController {
 		return "project";
 	}
 	
-	@RequestMapping(value = "/api/status", method = RequestMethod.GET)
-	public @ResponseBody GitStatus status() {
-			
-		return new GitStatus(commitBranch,commitHash,commitDate,commitMessage);
-	}
+//	@RequestMapping(value = "/api/status", method = RequestMethod.GET)
+//	public @ResponseBody GitStatus status() {
+//
+//		return new GitStatus(commitBranch,commitHash,commitDate,commitMessage);
+//	}
 	
 	@RequestMapping(value = "/index/", method = RequestMethod.GET)
 	public @ResponseBody void index() {
 		logger.info("-------- Indexing Controller");
-		this.luceneSearcher.index();
 	}
 	
 	

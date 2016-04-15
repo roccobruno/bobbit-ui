@@ -2,12 +2,8 @@
 var ajax = require("./ajax.js");
 
 var Project = require("./project.js").Project;
-var Client = require("./client.js").Client;
-var ClientList = require("./client.js").ClientList;
 var ProjectList = require("./project.js").ProjectList;
 var Pagination = require("./pagination.js").Pagination;
-var ProjectPeriodList = require("./projectperiod.js").ProjectPeriodList;
-var ProjectDocumentList = require("./projectdocument.js").ProjectDocumentList;
 
 
 var Projects = function() {};
@@ -45,17 +41,7 @@ Projects.prototype.find = function(id,callback) {
     });
 };
 
-Projects.prototype.findClients = function(id,callback) {
-    ajax.get("/api/client/project/"+id, function (json) {
-        callback(ClientList.fromWireFormat(json));
-    });
-};
 
-Projects.prototype.findPeriods = function(ids,callback) {
-    ajax.get("/api/projectperiod/projects?ids="+ids, function (json) {
-        callback(ProjectPeriodList.fromWireFormat(json));
-    });
-};
 
 
 Projects.prototype.search = function(searchForm,pageNumber,callback) {
