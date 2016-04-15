@@ -40,6 +40,7 @@ describe("project", function () {
 
     });
 
+
     it("can convert model to list of projects ", function () {
         var list = projectList.fromWireFormat([{"id":"uiuiuiuiuui","title":"test", "creationTimestamp":1417690777},{"id":"uiuiuiuiuui","title":"test2", "creationTimestamp":1417690777}]);
         assert.equal(list.projects().length, 2);
